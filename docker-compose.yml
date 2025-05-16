@@ -1,0 +1,49 @@
+services:
+  snort3:
+    image: issgupat/snort-docker-sand5g:latest
+    hostname: snort3
+    network_mode: "host"
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    volumes:
+      - custom_data:/home/snorty/custom
+      - alerts_data:/home/snorty/alerts
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - TZ=Europe/Athens
+      - RULES_FILE=/home/snorty/custom/tls.rules
+      - INTERFACE=ens3
+    privileged: true
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+
+  fileagent:
+    image: issgupat/fileagent-docker-sand5g:latest
+    environment:
+      - PORT=8000
+      - HOST="0.0.0.0"
+      - FILE=tls.rules
+      - DIRECTORY=/app/custom
+    hostname: fileagent
+    network_mode: "host"
+    ports:
+      - "8000:8000"
+    volumes:
+      - custom_data:/app/custom
+
+volumes:
+  alerts_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./volumes/alerts
+
+  custom_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./volumes/custom
