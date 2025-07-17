@@ -1,6 +1,9 @@
 services:
   snort3:
-    image: issgupat/snort-docker-sand5g:latest
+    # image: issgupat/snort-docker-sand5g:latest
+    build:
+      context: .
+      dockerfile: Dockerfile-Snort
     hostname: snort3
     network_mode: "host"
     cap_add:
@@ -12,7 +15,11 @@ services:
       - /etc/localtime:/etc/localtime:ro
     environment:
       - TZ=Europe/Athens
-      - RULES_FILE=/home/snorty/custom/tls.rules
+      - RULES_FILE=/home/snorty/custom/custom_alert_drop_block.rules
+      - INTERFACE=ens3
+      - VERBOSE=1
+      - SNORT_ALERT_MODE=alert_json
+      - SNORT_DAQ_MODE=nfq
       - INTERFACE=ens3
     privileged: true
     stdin_open: true
